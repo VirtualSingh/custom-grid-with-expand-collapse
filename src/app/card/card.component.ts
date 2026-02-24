@@ -1,4 +1,4 @@
-import { Component , input} from '@angular/core';
+import { Component , input, output} from '@angular/core';
 import { Card } from '../model/model';
 @Component({
   selector: 'app-card', 
@@ -6,5 +6,7 @@ import { Card } from '../model/model';
   styleUrl: './card.component.scss',
 })
 export class CardComponent {
-data = input.required<Card>()
+data = input.required<Card>();
+expand = output<void>();
+
 }

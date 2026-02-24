@@ -1,6 +1,7 @@
-<div class="card" [style.background]="data().background">
-    <div class="card__header">{{data().header}}
-        <button >Expand</button>
+@let card = data();
+<div class="card" [style.background]="card.background">
+    <div class="card__header">{{card.header}}
+        <button (click)="expand.emit()">{{card.expanded?'Collapse':'Expand'}}</button>
     </div>
-    <div class="card__body">{{data().content}}</div>
+    <div class="card__body">{{card.content}}</div>
 </div>

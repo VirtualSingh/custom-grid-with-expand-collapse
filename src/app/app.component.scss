@@ -2,4 +2,11 @@
     display: grid;
     grid-template-columns: repeat(2,1fr);
     gap: 8px;
+    // grid-auto-flow: dense;
+    &__item{
+        transition: all 0.3s ease;
+        &.expanded{
+            grid-column: 1 / -1;
+        }
+    }
 }

@@ -1,7 +1,7 @@
 <div class="grid">
     @for(card of cards;track card.header){
-        <div class="grid__item">
-            <app-card [data]="card" ></app-card>
+        <div class="grid__item" [class.expanded]="card.expanded">
+            <app-card [data]="card" (expand)="toggleExpand(card)"></app-card>
         </div>
     }
 </div>
