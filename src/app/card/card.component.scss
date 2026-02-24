@@ -1,0 +1,21 @@
+.card{
+    padding: 8px;
+    height: 360px;
+    border-radius: 8px;
+    &__header{
+        height: 36px;
+        border-bottom: 1px solid black;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        button{
+            margin-left: auto;
+        }
+    }
+    &__body{
+        padding: 8px;
+        display: flex;
+
+    }
+
+}

@@ -1,0 +1,7 @@
+<div class="grid">
+    @for(card of cards;track card.header){
+        <div class="grid__item">
+            <app-card [data]="card" ></app-card>
+        </div>
+    }
+</div>
