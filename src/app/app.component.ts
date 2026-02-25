@@ -70,66 +70,62 @@ ngOnInit(): void {
     if(this.cards.every(card=>!card.expanded)) this.cards.sort((a,b)=>a.order - b.order);
   
   }
-  onExpand(card:Card ) {
+  async onExpand(card: Card) {
+
     let isNowExpanded = false;
-    this.runFlip(() => {
+  
+    await this.runFlip(() => {
       isNowExpanded = this.toggleExpand(card);
       this.repackCards();
     });
+  
     if (isNowExpanded) {
-      setTimeout(() => {
-        this.focusCard(card.order);
-      }, 320); // after FLIP animation
+      this.focusCard(card.order); // scroll starts immediately
     }
   }
 
-  private runFlip(mutator: () => void) {
+  private runFlip(mutator: () => void):Promise<void> {
+    return new Promise(resolve => {
 
-    // 1️⃣ FIRST
-    const firstRects = new Map<HTMLElement, DOMRect>();
-    this.gridItems.forEach(item => {
-      firstRects.set(
-        item.nativeElement,
-        item.nativeElement.getBoundingClientRect()
-      );
-    });
+      const firstRects = new Map<HTMLElement, DOMRect>();
   
-    // 2️⃣ MUTATE (reorder / expand)
-    mutator();
-  
-    // Force Angular render
-    this.cdr.detectChanges();
-  
-    requestAnimationFrame(() => {
-  
-      // 3️⃣ LAST
       this.gridItems.forEach(item => {
-  
-        const el = item.nativeElement;
-        const first = firstRects.get(el);
-        const last = el.getBoundingClientRect();
-  
-        if (!first) return;
-  
-        const deltaX = Math.round(first.left - last.left);
-        const deltaY =  Math.round(first.top - last.top);
-  
-        if (deltaX || deltaY) {
-  
-          // 4️⃣ INVERT
-          el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-          el.style.transition = 'transform 0s';
-  
-          requestAnimationFrame(() => {
-  
-            // 5️⃣ PLAY
-            el.style.transition = 'transform 300ms ease';
-            el.style.transform = '';
-  
-          });
-        }
+        firstRects.set(
+          item.nativeElement,
+          item.nativeElement.getBoundingClientRect()
+        );
       });
   
+      mutator();
+      this.cdr.detectChanges();
+  
+      requestAnimationFrame(() => {
+  
+        this.gridItems.forEach(item => {
+  
+          const el = item.nativeElement;
+          const first = firstRects.get(el);
+          const last = el.getBoundingClientRect();
+  
+          if (!first) return;
+  
+          const deltaX = Math.round(first.left - last.left);
+          const deltaY = Math.round(first.top - last.top);
+  
+          if (deltaX || deltaY) {
+  
+            el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            el.style.transition = 'transform 0s';
+  
+            requestAnimationFrame(() => {
+              el.style.transition = 'transform 300ms ease';
+              el.style.transform = '';
+            });
+          }
+        });
+  
+        resolve(); 
+      });
     });
   }
 
@@ -141,10 +137,11 @@ ngOnInit(): void {
       ?.nativeElement;
   
     if (!element) return;
-  
+    const previousTransform = element.style.transform;
+    element.style.transform = 'none';
     const rect = element.getBoundingClientRect();
-  
-    const topVisible = rect.top >= 0;
+    element.style.transform = previousTransform;
+    const topVisible = rect.top >= 0 && rect.top <= window.innerHeight;
     const bottomVisible = rect.bottom <= window.innerHeight;
   
     const fullyVisible = topVisible && bottomVisible;
