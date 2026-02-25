@@ -1,6 +1,6 @@
 <div class="grid">
     @for(card of cards;track card.order){
-        <div class="grid__item" [class.expanded]="card.expanded" #gridItem>
+        <div class="grid__item" [attr.data-id]="card.order" [class.expanded]="card.expanded" #gridItem>
             <app-card [data]="card" (expand)="onExpand(card)"></app-card>
         </div>
     }

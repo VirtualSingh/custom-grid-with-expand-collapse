@@ -36,8 +36,9 @@ ngOnInit(): void {
     }));
   }
 
-  toggleExpand(selected: Card) {
-    selected.expanded = !selected.expanded;
+  toggleExpand(card: Card) {
+    card.expanded = !card.expanded;
+    return card.expanded;
     // this.repackCards(selected);
   }
   
@@ -70,10 +71,16 @@ ngOnInit(): void {
   
   }
   onExpand(card:Card ) {
+    let isNowExpanded = false;
     this.runFlip(() => {
-      this.toggleExpand(card);
+      isNowExpanded = this.toggleExpand(card);
       this.repackCards();
     });
+    if (isNowExpanded) {
+      setTimeout(() => {
+        this.focusCard(card.order);
+      }, 320); // after FLIP animation
+    }
   }
 
   private runFlip(mutator: () => void) {
@@ -104,8 +111,8 @@ ngOnInit(): void {
   
         if (!first) return;
   
-        const deltaX = first.left - last.left;
-        const deltaY = first.top - last.top;
+        const deltaX = Math.round(first.left - last.left);
+        const deltaY =  Math.round(first.top - last.top);
   
         if (deltaX || deltaY) {
   
@@ -124,5 +131,41 @@ ngOnInit(): void {
       });
   
     });
+  }
+
+
+  private focusCard(id: number|string) {
+
+    const element = this.gridItems
+      .find(ref => ref.nativeElement.dataset['id'] == id)
+      ?.nativeElement;
+  
+    if (!element) return;
+  
+    const rect = element.getBoundingClientRect();
+  
+    const topVisible = rect.top >= 0;
+    const bottomVisible = rect.bottom <= window.innerHeight;
+  
+    const fullyVisible = topVisible && bottomVisible;
+  
+    if (!fullyVisible) {
+  
+      const absoluteTop = window.scrollY + rect.top;
+  
+      // Small offset so card isn’t glued to top
+      const offset = 16;
+  
+      window.scrollTo({
+        top: absoluteTop - offset,
+        behavior: 'smooth'
+      });
+    }
+  
+    // Highlight
+    element.classList.add('focused');
+    setTimeout(() => {
+      element.classList.remove('focused');
+    }, 700);
   }
 }
